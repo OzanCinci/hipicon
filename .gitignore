@@ -19,6 +19,10 @@ target/
 *.iml
 *.ipr
 
+### not neccessary for now // TODO: clear repo
+http
+
+
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
