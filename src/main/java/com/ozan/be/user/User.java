@@ -1,8 +1,12 @@
 package com.ozan.be.user;
 
+import com.ozan.be.order.Order;
+import com.ozan.be.review.PendingReviews;
+import com.ozan.be.review.Review;
 import com.ozan.be.token.Token;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -35,6 +39,18 @@ public class User implements UserDetails {
 
   @OneToMany(mappedBy = "user")
   private List<Token> tokens;
+
+
+  @OneToMany(mappedBy = "user")
+  private List<Review> reviews = new ArrayList<>();
+
+  @OneToMany(mappedBy = "user")
+  private List<PendingReviews> pendingReviews = new ArrayList<>();
+
+  /*
+  @OneToMany(mappedBy = "user")
+  private List<Order> orders = new ArrayList<>();
+  */
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

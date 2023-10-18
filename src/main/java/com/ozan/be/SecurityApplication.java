@@ -2,6 +2,7 @@ package com.ozan.be;
 
 import com.ozan.be.auth.AuthenticationService;
 import com.ozan.be.auth.RegisterRequest;
+import com.ozan.be.order.Order;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
