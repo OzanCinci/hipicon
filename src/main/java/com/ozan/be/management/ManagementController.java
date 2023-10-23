@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 
-@RequestMapping("test/")
+@RequestMapping("api/management")
 @AllArgsConstructor
 @RestController
 public class ManagementController {
     private final OrderService orderService;
 
-    @GetMapping("getActive")
+    @GetMapping("activeOrders")
     public List<Order> getAllActiveOrders(){
         return orderService.getAllActiveOrders();
     }
 
-    @GetMapping("getNonActive")
+    @GetMapping("completedOrders")
     public List<Order> getAllNonActiveOrders(){
         return orderService.getAllNonActiveOrders();
     }

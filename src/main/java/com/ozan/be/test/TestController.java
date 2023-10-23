@@ -1,14 +1,29 @@
 package com.ozan.be.test;
 
+import com.ozan.be.order.Order;
+import com.ozan.be.user.User;
+import com.ozan.be.user.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
+@AllArgsConstructor
+@NoArgsConstructor
 @RestController
 public class TestController {
+
+    @Autowired
+    private  UserRepository userRepository;
+
     @GetMapping("t")
-    public static String test(){
-        return "Helloooo there!";
+    public  List<Order> test(){
+        return userRepository.findByEmail("kadircan.bozkurt@mail.com").get().getOrders();
+        //return userRepository.findAll();
     }
 
     @GetMapping("z")

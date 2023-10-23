@@ -34,6 +34,7 @@ public class AuthenticationService {
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
         .role(request.getRole())
+        .phone(request.getPhone())
         .build();
 
     var savedUser = repository.save(user);
@@ -43,6 +44,11 @@ public class AuthenticationService {
     return AuthenticationResponse.builder()
             .accessToken(jwtToken)
             .refreshToken(refreshToken)
+            .firstName(user.getFirstname())
+            .lastName(user.getLastname())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .role(user.getRole())
             .build();
   }
 
@@ -62,6 +68,11 @@ public class AuthenticationService {
     return AuthenticationResponse.builder()
         .accessToken(jwtToken)
             .refreshToken(refreshToken)
+            .firstName(user.getFirstname())
+            .lastName(user.getLastname())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .role(user.getRole())
         .build();
   }
 

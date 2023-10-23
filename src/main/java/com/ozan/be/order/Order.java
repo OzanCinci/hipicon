@@ -1,6 +1,8 @@
 package com.ozan.be.order;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ozan.be.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,7 +36,10 @@ public class Order {
     )
     private Integer id;
 
+
     /*
+     */
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(
             name = "user_id",
@@ -45,8 +50,8 @@ public class Order {
             )
     )
     private User user;
-     */
-    private String useName;
+
+    private String userName;
 
     private String userEmail;
 
@@ -73,6 +78,7 @@ public class Order {
     @Column(name = "order_status")
     private String orderStatus;
 
+    @JsonManagedReference
     @OneToMany(
             mappedBy = "order",
             orphanRemoval = true,

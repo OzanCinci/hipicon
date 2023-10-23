@@ -21,4 +21,9 @@ public class OrderService {
         //return orderRepository.findAll();
         return orderRepository.findAllByStatusNot("active");
     }
+
+    public Order saveOrder(Order order){
+        orderRepository.save(order);
+        return order;
+    }
 }

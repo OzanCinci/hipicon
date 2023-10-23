@@ -1,6 +1,7 @@
 package com.ozan.be.order;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ozan.be.order.Order;
 import com.ozan.be.product.Product;
 import jakarta.persistence.*;
@@ -31,7 +32,9 @@ public class OrderItem {
     )
     private Integer id;
 
-    @ManyToOne
+    @ManyToOne(
+            fetch = FetchType.EAGER
+    )
     @JoinColumn(
             name = "product_id",
             nullable = false,
@@ -42,6 +45,7 @@ public class OrderItem {
     )
     private Product product;
 
+    @JsonBackReference
     @ManyToOne(
             fetch = FetchType.LAZY
     )

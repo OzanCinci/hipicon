@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -44,7 +45,8 @@ public class SecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html"};
     private static final String[] MANAGER_WHITE_LIST = {
-            "/management"};
+            "/api/management/**"
+    };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
@@ -54,15 +56,16 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers(MANAGER_WHITE_LIST).hasAnyRole(Role.MANAGER.name())
-                                .requestMatchers("/api/management/**").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
-                                .requestMatchers(GET, "/api/management/**").hasAnyAuthority(Permission.ADMIN_READ.name(), Permission.MANAGER_READ.name())
-                                .requestMatchers(POST, "/api/management/**").hasAnyAuthority(Permission.ADMIN_CREATE.name(), Permission.MANAGER_CREATE.name())
-                                .requestMatchers(PUT, "/api/management/**").hasAnyAuthority(Permission.ADMIN_UPDATE.name(), Permission.MANAGER_UPDATE.name())
-                                .requestMatchers(DELETE, "/api/management/**").hasAnyAuthority(Permission.ADMIN_DELETE.name(), Permission.MANAGER_DELETE.name())
+                                .requestMatchers(MANAGER_WHITE_LIST).hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
+                                //.requestMatchers("/api/management/**").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
+                                //.requestMatchers(GET, "/api/management/**").hasAnyAuthority(Permission.ADMIN_READ.name(), Permission.MANAGER_READ.name())
+                                //.requestMatchers(POST, "/api/management/**").hasAnyAuthority(Permission.ADMIN_CREATE.name(), Permission.MANAGER_CREATE.name())
+                                //.requestMatchers(PUT, "/api/management/**").hasAnyAuthority(Permission.ADMIN_UPDATE.name(), Permission.MANAGER_UPDATE.name())
+                                //.requestMatchers(DELETE, "/api/management/**").hasAnyAuthority(Permission.ADMIN_DELETE.name(), Permission.MANAGER_DELETE.name())
                                 .anyRequest()
                                 .authenticated()
                 )

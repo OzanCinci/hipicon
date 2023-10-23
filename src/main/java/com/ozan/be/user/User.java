@@ -1,5 +1,7 @@
 package com.ozan.be.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ozan.be.order.Order;
 import com.ozan.be.review.PendingReviews;
 import com.ozan.be.review.Review;
@@ -32,57 +34,70 @@ public class User implements UserDetails {
   private String firstname;
   private String lastname;
   private String email;
+  @JsonIgnore
   private String password;
-
+  private String phone;
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(mappedBy = "user")
+  @JsonIgnore
+  @JsonManagedReference
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
   private List<Token> tokens;
 
-
-  @OneToMany(mappedBy = "user")
+  @JsonManagedReference
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
   private List<Review> reviews = new ArrayList<>();
 
-  @OneToMany(mappedBy = "user")
+  @JsonManagedReference
+  @JsonIgnore
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
   private List<PendingReviews> pendingReviews = new ArrayList<>();
 
-  /*
-  @OneToMany(mappedBy = "user")
+  @JsonManagedReference
+  @JsonIgnore
+  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
   private List<Order> orders = new ArrayList<>();
-  */
+
 
   @Override
+  @JsonIgnore
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return role.getAuthorities();
   }
 
   @Override
+  @JsonIgnore
   public String getPassword() {
     return password;
   }
 
   @Override
+  @JsonIgnore
   public String getUsername() {
     return email;
   }
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonExpired() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isAccountNonLocked() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isCredentialsNonExpired() {
     return true;
   }
 
   @Override
+  @JsonIgnore
   public boolean isEnabled() {
     return true;
   }

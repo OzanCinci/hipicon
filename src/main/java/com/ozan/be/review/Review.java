@@ -1,5 +1,6 @@
 package com.ozan.be.review;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ozan.be.product.Product;
 import com.ozan.be.user.User;
 import jakarta.persistence.*;
@@ -32,6 +33,7 @@ public class Review {
     )
     private Integer id;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(
             name = "product_id",
@@ -43,6 +45,7 @@ public class Review {
     )
     private Product product;
 
+    @JsonBackReference
     @ManyToOne
     @JoinColumn(
             name = "user_id",
