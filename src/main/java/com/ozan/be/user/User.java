@@ -8,6 +8,7 @@ import com.ozan.be.review.Review;
 import com.ozan.be.token.Token;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +40,8 @@ public class User implements UserDetails {
   private String phone;
   @Enumerated(EnumType.STRING)
   private Role role;
+  @Column(columnDefinition = "timestamp")
+  private LocalDateTime createdAt;
 
   @JsonIgnore
   @JsonManagedReference

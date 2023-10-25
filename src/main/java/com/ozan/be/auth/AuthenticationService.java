@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +36,7 @@ public class AuthenticationService {
         .password(passwordEncoder.encode(request.getPassword()))
         .role(request.getRole())
         .phone(request.getPhone())
+        .createdAt(LocalDateTime.now())
         .build();
 
     var savedUser = repository.save(user);
@@ -49,6 +51,7 @@ public class AuthenticationService {
             .email(user.getEmail())
             .phone(user.getPhone())
             .role(user.getRole())
+            .createdAt(user.getCreatedAt())
             .build();
   }
 
@@ -73,6 +76,7 @@ public class AuthenticationService {
             .email(user.getEmail())
             .phone(user.getPhone())
             .role(user.getRole())
+            .createdAt(user.getCreatedAt())
         .build();
   }
 

@@ -3,6 +3,7 @@ package com.ozan.be.config;
 import com.ozan.be.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +16,7 @@ public class LogoutService implements LogoutHandler {
 
   private final TokenRepository tokenRepository;
 
+  @Transactional
   @Override
   public void logout(
       HttpServletRequest request,
