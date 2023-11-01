@@ -3,7 +3,6 @@ package com.ozan.be.user;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ozan.be.order.Order;
-import com.ozan.be.review.PendingReviews;
 import com.ozan.be.review.Review;
 import com.ozan.be.token.Token;
 import jakarta.persistence.*;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,12 +51,7 @@ public class User implements UserDetails {
   private List<Review> reviews = new ArrayList<>();
 
   @JsonManagedReference
-  @JsonIgnore
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
-  private List<PendingReviews> pendingReviews = new ArrayList<>();
-
-  @JsonManagedReference
-  @JsonIgnore
+  //@JsonIgnore
   @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
   private List<Order> orders = new ArrayList<>();
 

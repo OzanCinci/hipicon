@@ -3,17 +3,14 @@ package com.ozan.be.management;
 
 import com.ozan.be.order.Order;
 import com.ozan.be.order.OrderService;
-import com.ozan.be.review.PendingReviews;
-import com.ozan.be.review.PendingReviewsService;
 import com.ozan.be.review.Review;
 import com.ozan.be.review.ReviewService;
 import com.ozan.be.user.User;
 import com.ozan.be.user.UserService;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,7 +20,6 @@ import java.util.List;
 @RestController
 public class ManagementController {
     private final OrderService orderService;
-    private final PendingReviewsService pendingReviewsService;
     private final ReviewService reviewService;
     private final UserService userService;
 
@@ -38,13 +34,25 @@ public class ManagementController {
     }
 
     @GetMapping("pendingReviews")
-    public List<PendingReviews> getAllPendingReviews(){
-        return pendingReviewsService.getAllPendingReviews();
+    public List<Review> getPendingReviews(){
+        return reviewService.getPendingReviews();
+    }
+
+    @Transactional
+    @PutMapping("approveReview/{reviewID}/{productID}")
+    public Review approveReview(@PathVariable Integer reviewID, @PathVariable Integer productID){
+        return reviewService.approveReview(reviewID, productID);
+    }
+
+    @Transactional
+    @DeleteMapping("deleteReview/{reviewID}")
+    public ResponseEntity<String> deletePendingReview(@PathVariable Integer reviewID){
+        return reviewService.deletePendingReview(reviewID);
     }
 
     @GetMapping("reviews")
-    public List<Review> getAllReviews(){
-        return reviewService.getAllReviews();
+    public List<Review> getApprovedReviews(){
+        return reviewService.getApprovedReviews();
     }
 
     @GetMapping("allUsers")
@@ -52,9 +60,14 @@ public class ManagementController {
         return userService.getAllUsers();
     }
 
-    @GetMapping("allUsers/{email}")
-    public User getUser(@PathVariable("email") String email){
-        return userService.getUser(email);
+    @GetMapping("userSearch")
+    public List<User> getUserSearchResult(@RequestParam("q") String searchWord){
+        return userService.getUserSearchResult(searchWord);
+    }
+
+    @GetMapping("managerSearch")
+    public List<User> getManagerUsers(){
+        return userService.getManagerUsers();
     }
 
     @GetMapping("landingPage")

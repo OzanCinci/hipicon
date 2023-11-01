@@ -33,7 +33,7 @@ public class Review {
     )
     private Integer id;
 
-    @JsonBackReference
+    //@JsonBackReference
     @ManyToOne
     @JoinColumn(
             name = "product_id",
@@ -59,6 +59,8 @@ public class Review {
 
     private String userName; // user.getFirstName() + " " + user.getLastName()
 
+    private String email;
+
     private Integer rating;
 
     private String comment;
@@ -68,5 +70,7 @@ public class Review {
 
     @Column(columnDefinition = "timestamp")
     private LocalDateTime approvedAt;
+
+    private Boolean approved;
 
 }

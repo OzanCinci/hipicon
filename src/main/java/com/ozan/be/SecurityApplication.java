@@ -5,6 +5,9 @@ import com.ozan.be.auth.RegisterRequest;
 import com.ozan.be.order.*;
 import com.ozan.be.product.Product;
 import com.ozan.be.product.ProductRepository;
+import com.ozan.be.review.Review;
+import com.ozan.be.review.ReviewRequest;
+import com.ozan.be.review.ReviewService;
 import com.ozan.be.user.User;
 import com.ozan.be.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -31,7 +34,8 @@ public class SecurityApplication {
 			UserRepository userRepository,
 			OrderService orderService,
 			ProductRepository productRepository,
-			OrderItemRepository orderItemRepository
+			OrderItemRepository orderItemRepository,
+			ReviewService reviewService
 	) {
 		return args -> {
 			var admin = RegisterRequest.builder()
@@ -62,8 +66,8 @@ public class SecurityApplication {
 			System.out.println("Regular User token: " + service.register(regularUser).getAccessToken());
 
 			var p = Product.builder()
-					.numberOfRating(12)
-					.rating(4.9)
+					.numberOfRating(0)
+					.rating(0.0)
 					.stock(true)
 					.category("random category")
 					.description("description part of the product")
@@ -224,6 +228,18 @@ public class SecurityApplication {
 
 					orderItemRepository.save(orderItem);
 				}
+
+				var ReviewRequest1 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(4).email("admin@mail.com").comment("it is okay!").build();
+				var ReviewRequest2 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("it is greate, I bought it twice!!!!").build();
+				var ReviewRequest3 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("danke schön test review to check functionalty").build();
+				var ReviewRequest4 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("sago kaf kef review test 123 test").build();
+				var ReviewRequest5 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("it is 5/5!").build();
+
+				reviewService.createReview(ReviewRequest1);
+				reviewService.createReview(ReviewRequest2);
+				reviewService.createReview(ReviewRequest3);
+				reviewService.createReview(ReviewRequest4);
+				reviewService.createReview(ReviewRequest5);
 			}
 		};
 	}

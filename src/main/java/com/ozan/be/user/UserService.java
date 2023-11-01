@@ -42,4 +42,12 @@ public class UserService {
         // only allows acces from admin panel so return type is not optional
         return repository.findByEmail(email).get();
     }
+
+    public List<User> getUserSearchResult(String searchWord){
+        return repository.findUsersByEmailNameOrSurnameContainingIgnoreCase(searchWord);
+    }
+
+    public List<User> getManagerUsers(){
+        return repository.findUsersByRoleIsNot(Role.USER);
+    }
 }
