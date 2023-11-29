@@ -71,8 +71,8 @@ public class SecurityApplication {
 					.stock(true)
 					.category("random category")
 					.description("description part of the product")
-					.imageUrl("https:/dkaşskdşlaksd.com/image/product.jpg")
-					.name("insektenshutz")
+					.imageUrl("https://www.hell-insek.de/image/product.jpg")
+					.name("Drehfenster")
 					.build();
 			productRepository.save(p);
 
@@ -192,7 +192,16 @@ public class SecurityApplication {
 							.measurements("some measurements6")
 							.build();
 
+					var orderItem2 = OrderItem.builder()
+							.order(order)
+							.price(245.0)
+							.product(product)
+							.quantity(2)
+							.measurements("some measurements6 etc.")
+							.build();
+
 					orderItemRepository.save(orderItem);
+					orderItemRepository.save(orderItem2);
 				}
 			}
 
@@ -205,7 +214,7 @@ public class SecurityApplication {
 						.user(tempUser)
 						.createdAt(LocalDateTime.now())
 						.lastUpdate(LocalDateTime.now())
-						.address("address 1 14")
+						.address("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has ")
 						.city("city")
 						.country("turkey")
 						.orderStatus("non-active")
@@ -231,7 +240,7 @@ public class SecurityApplication {
 
 				var ReviewRequest1 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(4).email("admin@mail.com").comment("it is okay!").build();
 				var ReviewRequest2 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("it is greate, I bought it twice!!!!").build();
-				var ReviewRequest3 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("danke schön test review to check functionalty").build();
+				var ReviewRequest3 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("it is greate, I bought it twice!!!! danke schön test review to check functionalty. it is greate, I bought it twice!!!! sago kaf kef review test 123 test.").build();
 				var ReviewRequest4 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("sago kaf kef review test 123 test").build();
 				var ReviewRequest5 = ReviewRequest.builder().email("admin@mail.com").productId(1).rating(5).email("admin@mail.com").comment("it is 5/5!").build();
 

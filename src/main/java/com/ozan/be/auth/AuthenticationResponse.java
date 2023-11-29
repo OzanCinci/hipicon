@@ -23,6 +23,7 @@ public class AuthenticationResponse {
   @JsonProperty("refresh_token")
   private String refreshToken;
 
+  private Integer selfID;
   private String firstName;
   private String lastName;
   private String phone;

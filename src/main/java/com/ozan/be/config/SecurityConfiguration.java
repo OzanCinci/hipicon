@@ -49,7 +49,8 @@ public class SecurityConfiguration {
     };
 
     private static final String[] USER_WHITE_LIST = {
-            "/api/review/**"
+            "/api/users/getUserDetails/**",
+            "/api/review/**",
     };
 
     private final JwtAuthenticationFilter jwtAuthFilter;
@@ -64,8 +65,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
-                                .requestMatchers(MANAGER_WHITE_LIST).hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
                                 .requestMatchers(USER_WHITE_LIST).hasAnyRole(Role.USER.name(),Role.ADMIN.name(), Role.MANAGER.name())
+                                .requestMatchers(MANAGER_WHITE_LIST).hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
                                 //.requestMatchers("/api/management/**").hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
                                 //.requestMatchers(GET, "/api/management/**").hasAnyAuthority(Permission.ADMIN_READ.name(), Permission.MANAGER_READ.name())
                                 //.requestMatchers(POST, "/api/management/**").hasAnyAuthority(Permission.ADMIN_CREATE.name(), Permission.MANAGER_CREATE.name())
