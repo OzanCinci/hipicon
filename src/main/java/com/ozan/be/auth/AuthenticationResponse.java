@@ -5,12 +5,11 @@ import com.ozan.be.user.Role;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -20,6 +19,7 @@ public class AuthenticationResponse {
 
   @JsonProperty("access_token")
   private String accessToken;
+
   @JsonProperty("refresh_token")
   private String refreshToken;
 
@@ -28,8 +28,10 @@ public class AuthenticationResponse {
   private String lastName;
   private String phone;
   private String email;
+
   @Column(columnDefinition = "timestamp")
   private LocalDateTime createdAt;
+
   @Enumerated(EnumType.STRING)
   private Role role;
 }

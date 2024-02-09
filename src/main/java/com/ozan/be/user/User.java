@@ -6,12 +6,10 @@ import com.ozan.be.order.Order;
 import com.ozan.be.review.Review;
 import com.ozan.be.token.Token;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,34 +25,32 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Table(name = "_user", uniqueConstraints = @UniqueConstraint(columnNames = "email"))
 public class User implements UserDetails {
 
-  @Id
-  @GeneratedValue
-  private Integer id;
+  @Id @GeneratedValue private Integer id;
   private String firstname;
   private String lastname;
   private String email;
-  @JsonIgnore
-  private String password;
+  @JsonIgnore private String password;
   private String phone;
+
   @Enumerated(EnumType.STRING)
   private Role role;
+
   @Column(columnDefinition = "timestamp")
   private LocalDateTime createdAt;
 
   @JsonIgnore
   @JsonManagedReference
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
   private List<Token> tokens;
 
   @JsonManagedReference
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
   private List<Review> reviews = new ArrayList<>();
 
   @JsonManagedReference
-  //@JsonIgnore
-  @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY,mappedBy = "user")
+  // @JsonIgnore
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
   private List<Order> orders = new ArrayList<>();
-
 
   @Override
   @JsonIgnore

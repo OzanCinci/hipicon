@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
   Optional<User> findByEmail(String email);
+
   Optional<User> findUserById(Integer id);
 
-  @Query("SELECT u FROM User u WHERE LOWER(u.email) LIKE %:searchTerm% OR LOWER(u.firstname) LIKE %:searchTerm% OR LOWER(u.lastname) LIKE %:searchTerm%")
+  @Query(
+      "SELECT u FROM User u WHERE LOWER(u.email) LIKE %:searchTerm% OR LOWER(u.firstname) LIKE %:searchTerm% OR LOWER(u.lastname) LIKE %:searchTerm%")
   List<User> findUsersByEmailNameOrSurnameContainingIgnoreCase(String searchTerm);
 
   List<User> findUsersByRoleIsNot(Role role);

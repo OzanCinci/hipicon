@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+  private final ProductService productService;
 }
