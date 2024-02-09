@@ -181,6 +181,59 @@ public class SecurityApplication {
 
 				orderService.saveOrder(order);
 
+				// duplicate order
+				var orderza = Order.builder()
+						.postalCode(59850)
+						.shippingPrice(50.50)
+						.totalPrice(60.50)
+						.user(tempUser)
+						.createdAt(LocalDateTime.now())
+						.lastUpdate(LocalDateTime.now())
+						.address("address 1 2 3 4")
+						.city("texas")
+						.country("turkey")
+						.orderStatus("non-active")
+						.paymentMethod("paypal")
+						.userName(tempUser.getFirstname() + " " + tempUser.getLastname())
+						.userEmail(tempUser.getEmail()).build();
+
+				orderService.saveOrder(orderza);
+
+				var orderka = Order.builder()
+						.postalCode(59850)
+						.shippingPrice(50.50)
+						.totalPrice(60.50)
+						.user(tempUser)
+						.createdAt(LocalDateTime.now())
+						.lastUpdate(LocalDateTime.now())
+						.address("address 1 2 3 4")
+						.city("texas")
+						.country("turkey")
+						.orderStatus("non-active")
+						.paymentMethod("paypal")
+						.userName(tempUser.getFirstname() + " " + tempUser.getLastname())
+						.userEmail(tempUser.getEmail()).build();
+
+				orderService.saveOrder(orderka);
+
+				var orderda = Order.builder()
+						.postalCode(59850)
+						.shippingPrice(50.50)
+						.totalPrice(60.50)
+						.user(tempUser)
+						.createdAt(LocalDateTime.now())
+						.lastUpdate(LocalDateTime.now())
+						.address("address 1 2 3 4")
+						.city("texas")
+						.country("turkey")
+						.orderStatus("non-active")
+						.paymentMethod("paypal")
+						.userName(tempUser.getFirstname() + " " + tempUser.getLastname())
+						.userEmail(tempUser.getEmail()).build();
+
+				orderService.saveOrder(orderda);
+				// duplicate order
+
 				var tempProduct2 = productRepository.findById(1);
 				if(tempProduct2.isPresent()) {
 					Product product = tempProduct2.get();
