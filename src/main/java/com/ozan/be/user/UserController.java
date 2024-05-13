@@ -19,7 +19,7 @@ public class UserController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("getUserDetails/{userID}")
+  @GetMapping("/getUserDetails/{userID}")
   public User getUserDetails(@PathVariable Integer userID) {
     return service.getUserDetails(userID);
   }

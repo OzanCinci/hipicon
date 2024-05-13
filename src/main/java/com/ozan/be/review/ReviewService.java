@@ -22,14 +22,14 @@ public class ReviewService {
   private final ProductService productService;
 
   public Page<Review> getAllApprovedReviews(Pageable pageable) {
-    Pageable finalPageable = PageableUtils.prepareDefaultAuditSorting(pageable);
+    Pageable finalPageable = PageableUtils.prepareUserAuditSorting(pageable);
     Page<Review> reviewPage = reviewRepository.findByApproved(true, finalPageable);
     List<Review> reviewList = reviewPage.getContent().stream().toList();
     return new PageImpl<>(reviewList, reviewPage.getPageable(), reviewPage.getTotalElements());
   }
 
   public Page<Review> getAllPendingReviews(Pageable pageable) {
-    Pageable finalPageable = PageableUtils.prepareDefaultAuditSorting(pageable);
+    Pageable finalPageable = PageableUtils.prepareUserAuditSorting(pageable);
     Page<Review> reviewPage = reviewRepository.findByApproved(false, finalPageable);
     List<Review> reviewList = reviewPage.getContent().stream().toList();
     return new PageImpl<>(reviewList, reviewPage.getPageable(), reviewPage.getTotalElements());

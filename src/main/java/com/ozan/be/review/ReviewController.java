@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReviewController {
   private final ReviewService reviewService;
 
-  @PostMapping("createReview")
+  @PostMapping("/createReview")
   public Integer createReview(@RequestBody ReviewRequest request) {
     return reviewService.createReview(request);
   }

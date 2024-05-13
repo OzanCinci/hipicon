@@ -24,28 +24,28 @@ public class ManagementController {
   private final ReviewService reviewService;
   private final UserService userService;
 
-  @GetMapping("active-orders")
+  @GetMapping("/active-orders")
   public ResponseEntity<Page<Order>> getAllActiveOrders(
       @PageableDefault(size = 5) Pageable pageable) {
     Page<Order> orders = orderService.getAllActiveOrders(pageable);
     return new ResponseEntity<>(orders, HttpStatus.OK);
   }
 
-  @GetMapping("completed-orders")
+  @GetMapping("/completed-orders")
   public ResponseEntity<Page<Order>> getAllNonActiveOrders(
       @PageableDefault(size = 5) Pageable pageable) {
     Page<Order> orders = orderService.getAllNonActiveOrders(pageable);
     return new ResponseEntity<>(orders, HttpStatus.OK);
   }
 
-  @GetMapping("pending-reviews")
+  @GetMapping("/pending-reviews")
   public ResponseEntity<Page<Review>> getAllPendingReviews(
       @PageableDefault(size = 5) Pageable pageable) {
     Page<Review> reviews = reviewService.getAllPendingReviews(pageable);
     return new ResponseEntity<>(reviews, HttpStatus.OK);
   }
 
-  @GetMapping("approved-reviews")
+  @GetMapping("/approved-reviews")
   public ResponseEntity<Page<Review>> getAllApprovedReviews(
       @PageableDefault(size = 5) Pageable pageable) {
     Page<Review> reviews = reviewService.getAllApprovedReviews(pageable);
@@ -53,34 +53,34 @@ public class ManagementController {
   }
 
   @Transactional
-  @PutMapping("approveReview/{reviewID}/{productID}")
+  @PutMapping("/approveReview/{reviewID}/{productID}")
   public Review approveReview(@PathVariable Integer reviewID, @PathVariable Integer productID) {
     return reviewService.approveReview(reviewID, productID);
   }
 
   @Transactional
-  @DeleteMapping("deleteReview/{reviewID}")
+  @DeleteMapping("/deleteReview/{reviewID}")
   public ResponseEntity<String> deletePendingReview(@PathVariable Integer reviewID) {
     return reviewService.deletePendingReview(reviewID);
   }
 
-  @GetMapping("all-users")
+  @GetMapping("/all-users")
   public ResponseEntity<Page<User>> getAllUsers(@PageableDefault(size = 5) Pageable pageable) {
     Page<User> users = userService.getAllUsers(pageable);
     return new ResponseEntity<>(users, HttpStatus.OK);
   }
 
-  @GetMapping("userSearch")
+  @GetMapping("/userSearch")
   public List<User> getUserSearchResult(@RequestParam("q") String searchWord) {
     return userService.getUserSearchResult(searchWord);
   }
 
-  @GetMapping("managerSearch")
+  @GetMapping("/managerSearch")
   public List<User> getManagerUsers() {
     return userService.getManagerUsers();
   }
 
-  @GetMapping("landingPage")
+  @GetMapping("/landingPage")
   public String getLandingPage() {
     // TODO: decide how to implement landing page data analysis
     return null;

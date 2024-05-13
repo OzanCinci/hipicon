@@ -23,66 +23,23 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 @RequiredArgsConstructor
 @EnableMethodSecurity
 public class SecurityConfiguration {
-
-  private static final String[] WHITE_LIST_URL = {
-    "/t",
-    "/test/**",
-    "/getNonActive",
-    "/api/auth/**",
-    "/api/auth/**",
-    "/v2/api-docs",
-    "/v3/api-docs",
-    "/v3/api-docs/**",
-    "/swagger-resources",
-    "/swagger-resources/**",
-    "/configuration/ui",
-    "/configuration/security",
-    "/swagger-ui/**",
-    "/webjars/**",
-    "/swagger-ui.html"
-  };
-  private static final String[] MANAGER_WHITE_LIST = {"/api/management/**"};
-
-  private static final String[] USER_WHITE_LIST = {
-    "/api/users/getUserDetails/**", "/api/review/**",
-  };
-
   private final JwtAuthenticationFilter jwtAuthFilter;
   private final AuthenticationProvider authenticationProvider;
   private final LogoutHandler logoutHandler;
+  private final String[] managementRoles = {Role.ADMIN.name(), Role.MANAGER.name()};
+  private final String[] allRoles = {Role.ADMIN.name(), Role.MANAGER.name(), Role.USER.name()};
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    publicRequests(http);
+    secureExternalProducts(http);
+    secureManagements(http);
+    secureUserOperations(http);
+    secureReviewOperations(http);
+
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
-        .authorizeHttpRequests(
-            req ->
-                req.requestMatchers(WHITE_LIST_URL)
-                    .permitAll()
-                    .requestMatchers(USER_WHITE_LIST)
-                    .hasAnyRole(Role.USER.name(), Role.ADMIN.name(), Role.MANAGER.name())
-                    .requestMatchers(MANAGER_WHITE_LIST)
-                    .hasAnyRole(Role.ADMIN.name(), Role.MANAGER.name())
-                    // .requestMatchers("/api/management/**").hasAnyRole(Role.ADMIN.name(),
-                    // Role.MANAGER.name())
-                    // .requestMatchers(GET,
-                    // "/api/management/**").hasAnyAuthority(Permission.ADMIN_READ.name(),
-                    // Permission.MANAGER_READ.name())
-                    // .requestMatchers(POST,
-                    // "/api/management/**").hasAnyAuthority(Permission.ADMIN_CREATE.name(),
-                    // Permission.MANAGER_CREATE.name())
-                    // .requestMatchers(PUT,
-                    // "/api/management/**").hasAnyAuthority(Permission.ADMIN_UPDATE.name(),
-                    // Permission.MANAGER_UPDATE.name())
-                    // .requestMatchers(DELETE,
-                    // "/api/management/**").hasAnyAuthority(Permission.ADMIN_DELETE.name(),
-                    // Permission.MANAGER_DELETE.name())
-                    .requestMatchers(HttpMethod.GET, "/api/external-products/**")
-                    .permitAll()
-                    .requestMatchers(HttpMethod.POST, "/api/external-products/**")
-                    .permitAll()
-                    .anyRequest()
-                    .authenticated())
+        .authorizeHttpRequests(req -> req.anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
         .authenticationProvider(authenticationProvider)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
@@ -96,5 +53,62 @@ public class SecurityConfiguration {
                             SecurityContextHolder.clearContext()));
 
     return http.build();
+  }
+
+  private void publicRequests(HttpSecurity http) throws Exception {
+    String[] WHITE_LIST_URL = {
+      "/api/auth/**",
+      "/api/auth/**",
+      "/v2/api-docs",
+      "/v3/api-docs",
+      "/v3/api-docs/**",
+      "/swagger-resources",
+      "/swagger-resources/**",
+      "/configuration/ui",
+      "/configuration/security",
+      "/swagger-ui/**",
+      "/webjars/**",
+      "/swagger-ui.html"
+    };
+
+    http.authorizeHttpRequests((requests) -> requests.requestMatchers(WHITE_LIST_URL).permitAll());
+  }
+
+  private void secureExternalProducts(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(
+        (requests) ->
+            requests
+                .requestMatchers(HttpMethod.GET, "/api/external-products/**")
+                .permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/external-products/**")
+                .permitAll());
+  }
+
+  private void secureManagements(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(
+        (requests) ->
+            requests
+                .requestMatchers(HttpMethod.GET, "/api/management/**")
+                .hasAnyRole(managementRoles)
+                .requestMatchers(HttpMethod.PUT, "/api/management/**")
+                .hasAnyRole(managementRoles)
+                .requestMatchers(HttpMethod.DELETE, "/api/management/**")
+                .hasAnyRole(managementRoles));
+  }
+
+  private void secureUserOperations(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(
+        (requests) ->
+            requests
+                .requestMatchers(HttpMethod.GET, "/api/users/getUserDetails/*")
+                .hasAnyRole(allRoles));
+  }
+
+  private void secureReviewOperations(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(
+        (requests) ->
+            requests
+                .requestMatchers(HttpMethod.POST, "/api/review/createReview")
+                .hasAnyRole(allRoles));
   }
 }
