@@ -1,6 +1,5 @@
 package com.ozan.be.auth;
 
-import com.ozan.be.customException.ApiRequestException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -25,10 +24,10 @@ public class AuthenticationController {
       return ResponseEntity.ok(service.register(request));
     } catch (Exception e) {
       if (e.getMessage().contains(" already exists")) {
-        throw new ApiRequestException(
+        throw new RuntimeException(
             "User with email address: " + request.getEmail() + " already exists");
       }
-      throw new ApiRequestException(
+      throw new RuntimeException(
           "Something went wrong, in case of recurrence please contact us");
     }
   }
@@ -40,10 +39,10 @@ public class AuthenticationController {
       return ResponseEntity.ok(service.authenticate(request));
     } catch (Exception e) {
       if (e.getMessage().contains("Bad credentials")) {
-        throw new ApiRequestException(
+        throw new RuntimeException(
             "User with email address: " + request.getEmail() + " doesn't exists");
       }
-      throw new ApiRequestException(
+      throw new RuntimeException(
           "Something went wrong, in case of recurrence please contact us");
     }
   }

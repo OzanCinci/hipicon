@@ -1,5 +1,6 @@
 package com.ozan.be.kasondaApi;
 
+import com.ozan.be.customException.types.KasondaApiException;
 import com.ozan.be.externalProducts.dtos.KasondaPriceRequestDTO;
 import com.ozan.be.externalProducts.dtos.KasondaPriceResponseDTO;
 import com.ozan.be.kasondaApi.dtos.Product;
@@ -33,8 +34,8 @@ public class KasondaApiService {
                         .flatMap(
                             errorBody ->
                                 Mono.error(
-                                    new RuntimeException(
-                                        "Failed request with status: "
+                                    new KasondaApiException(
+                                        "Kasonda Request Failed with status: "
                                             + clientResponse.statusCode()
                                             + " and body: "
                                             + errorBody))))
@@ -60,8 +61,8 @@ public class KasondaApiService {
                         .flatMap(
                             errorBody ->
                                 Mono.error(
-                                    new RuntimeException(
-                                        "Failed request with status: "
+                                    new KasondaApiException(
+                                        "Kasonda Request Failed with status: "
                                             + clientResponse.statusCode()
                                             + " and body: "
                                             + errorBody))))

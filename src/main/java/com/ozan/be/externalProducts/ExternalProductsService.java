@@ -2,6 +2,7 @@ package com.ozan.be.externalProducts;
 
 import static java.util.Objects.isNull;
 
+import com.ozan.be.customException.types.BadRequestException;
 import com.ozan.be.externalProducts.dtos.KasondaPriceRequestDTO;
 import com.ozan.be.externalProducts.dtos.KasondaPriceResponseDTO;
 import com.ozan.be.kasondaApi.KasondaApiService;
@@ -79,7 +80,7 @@ public class ExternalProductsService {
         product.getColors().stream().filter(c -> c.getId().equals(id)).findFirst().orElse(null);
 
     if (isNull(color)) {
-      throw new RuntimeException("No such color option found!");
+      throw new BadRequestException("No such color option found!");
     }
 
     ColorOption colorOption = new ColorOption();
