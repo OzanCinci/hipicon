@@ -22,3 +22,9 @@ services:
       - "5050:5050"
     depends_on:
       - postgres
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379" # Map host port 6379 to container port 6379

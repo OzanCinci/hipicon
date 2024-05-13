@@ -1,4 +1,4 @@
-package com.ozan.be.corsConfiguration;
+package com.ozan.be.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
