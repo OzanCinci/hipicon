@@ -1,34 +1,28 @@
 package com.ozan.be.order;
 
-import static jakarta.persistence.GenerationType.SEQUENCE;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.ozan.be.common.Auditable;
+import com.ozan.be.order.domain.OrderStatus;
 import com.ozan.be.user.User;
 import jakarta.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import lombok.*;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "fk_order")
-public class Order implements Serializable {
+public class Order extends Auditable<UUID> implements Serializable {
   @Id
-  @SequenceGenerator(name = "order_sequence", sequenceName = "order_sequence", allocationSize = 1)
-  @GeneratedValue(strategy = SEQUENCE, generator = "order_sequence")
-  @Column(name = "id", updatable = false)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-  /*
-   */
-  @JsonBackReference
-  @ManyToOne
+  @ManyToOne(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinColumn(
       name = "user_id",
       nullable = false,
@@ -46,7 +40,7 @@ public class Order implements Serializable {
 
   private Double totalPrice;
 
-  private String address; // TODO: make it longer string
+  private String address;
 
   private String city;
 
@@ -54,20 +48,13 @@ public class Order implements Serializable {
 
   private String country;
 
-  @Column(columnDefinition = "timestamp")
-  private LocalDateTime createdAt;
+  @Enumerated(EnumType.STRING)
+  private OrderStatus orderStatus;
 
-  @Column(columnDefinition = "timestamp")
-  private LocalDateTime lastUpdate;
-
-  @Column(name = "order_status")
-  private String orderStatus;
-
-  @JsonManagedReference
   @OneToMany(
+      cascade = CascadeType.ALL,
       mappedBy = "order",
       orphanRemoval = true,
-      cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-      fetch = FetchType.EAGER)
+      fetch = FetchType.LAZY)
   private List<OrderItem> orderItems = new ArrayList<>();
 }

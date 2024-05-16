@@ -1,4 +1,4 @@
-package com.ozan.be.config;
+package com.ozan.be.auth;
 
 import com.ozan.be.token.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,9 +28,6 @@ public class LogoutService implements LogoutHandler {
     jwt = authHeader.substring(7);
     var storedToken = tokenRepository.findByToken(jwt).orElse(null);
     if (storedToken != null) {
-      // storedToken.setExpired(true);
-      // storedToken.setRevoked(true);
-      // tokenRepository.save(storedToken);
       tokenRepository.delete(storedToken);
       SecurityContextHolder.clearContext();
     }

@@ -1,31 +1,26 @@
 package com.ozan.be.product;
 
-import static jakarta.persistence.GenerationType.SEQUENCE;
-
+import com.ozan.be.common.Auditable;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.*;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "product")
-public class Product {
+public class Product extends Auditable<UUID> implements Serializable {
   @Id
-  @SequenceGenerator(
-      name = "product_sequence",
-      sequenceName = "product_sequence",
-      allocationSize = 1)
-  @GeneratedValue(strategy = SEQUENCE, generator = "product_sequence")
-  @Column(name = "id", updatable = false)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
   private String name;
   private String imageUrl;
   private String category;
   private String description;
-  private Double rating;
-  private Integer numberOfRating;
-  private Boolean stock;
+  private Double rating = 0.0;
+  private Integer numberOfRating = 0;
+  private Boolean stock = true;
 }

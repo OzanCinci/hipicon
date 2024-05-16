@@ -1,6 +1,11 @@
 package com.ozan.be.product;
 
-import com.ozan.be.review.Review;
+import com.ozan.be.customException.types.DataNotFoundException;
+import com.ozan.be.utils.ModelMapperUtils;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -10,19 +15,22 @@ public class ProductService {
 
   private final ProductRepository productRepository;
 
-  public Product getProduct(Integer id) {
-    return productRepository.findProductById(id).orElse(null);
+  public Product getProductByIdThrowsException(UUID id) {
+    return productRepository
+        .findById(id)
+        .orElseThrow(() -> new DataNotFoundException("No product found with id: " + id));
   }
 
-  public Product updateProductRating(Integer productID, Review review) {
-    Product product = getProduct(productID);
-    Double rating = product.getRating();
-    Integer numberOfRating = product.getNumberOfRating();
-    Double newRating = (rating * numberOfRating + review.getRating()) / (numberOfRating + 1);
+  public void saveAndFlush(Product product) {
+    productRepository.saveAndFlush(product);
+  }
 
-    product.setRating(newRating);
-    product.setNumberOfRating(numberOfRating + 1);
+  public Product getProductById(UUID id) {
+    return getProductByIdThrowsException(id);
+  }
 
-    return productRepository.save(product);
+  public Map<UUID, Product> findByIdInAndMapByUUID(Set<UUID> ids) {
+    List<Product> products = productRepository.findByIdIn(ids);
+    return ModelMapperUtils.convertListToMap(products, Product::getId);
   }
 }

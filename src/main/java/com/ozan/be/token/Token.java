@@ -3,19 +3,20 @@ package com.ozan.be.token;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.ozan.be.user.User;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Token {
 
-  @Id @GeneratedValue public Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
   @Column(unique = true)
   public String token;

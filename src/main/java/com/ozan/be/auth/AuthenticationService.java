@@ -1,18 +1,22 @@
 package com.ozan.be.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ozan.be.config.JwtService;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import com.ozan.be.auth.dtos.AuthenticationRequestDTO;
+import com.ozan.be.auth.dtos.AuthenticationResponseDTO;
+import com.ozan.be.auth.dtos.RefreshTokenRequestDTO;
+import com.ozan.be.auth.dtos.RegisterRequestDTO;
+import com.ozan.be.customException.types.BadRequestException;
+import com.ozan.be.customException.types.DataNotFoundException;
 import com.ozan.be.token.Token;
 import com.ozan.be.token.TokenRepository;
 import com.ozan.be.token.TokenType;
 import com.ozan.be.user.User;
 import com.ozan.be.user.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.LocalDateTime;
+import com.ozan.be.utils.ModelMapperUtils;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,66 +31,54 @@ public class AuthenticationService {
   private final JwtService jwtService;
   private final AuthenticationManager authenticationManager;
 
-  public AuthenticationResponse register(RegisterRequest request) throws Exception {
-    var user =
-        User.builder()
-            .firstname(request.getFirstname())
-            .lastname(request.getLastname())
-            .email(request.getEmail())
-            .password(passwordEncoder.encode(request.getPassword()))
-            .role(request.getRole())
-            .phone(request.getPhone())
-            .createdAt(LocalDateTime.now())
-            .build();
-
-    var savedUser = repository.save(user);
-    var jwtToken = jwtService.generateToken(user);
-    var refreshToken = jwtService.generateRefreshToken(user);
-    saveUserToken(savedUser, jwtToken);
-    return AuthenticationResponse.builder()
-        .selfID(user.getId())
-        .accessToken(jwtToken)
-        .refreshToken(refreshToken)
-        .firstName(user.getFirstname())
-        .lastName(user.getLastname())
-        .email(user.getEmail())
-        .phone(user.getPhone())
-        .role(user.getRole())
-        .createdAt(user.getCreatedAt())
-        .build();
+  private User findUserByEmail(String email) {
+    return repository.findByEmail(email).orElse(null);
   }
 
-  public AuthenticationResponse authenticate(AuthenticationRequest request) {
+  private User findUserByEmailThrowsException(String email) {
+    return repository
+        .findByEmail(email)
+        .orElseThrow(() -> new DataNotFoundException("User with email: " + email + " not found."));
+  }
+
+  public AuthenticationResponseDTO register(RegisterRequestDTO request) {
+    User user = ModelMapperUtils.map(request, User.class);
+    validateRegisterRequestDTO(user);
+
+    user.setPassword(passwordEncoder.encode(request.getPassword()));
+    user.setCreatedAt(Instant.now());
+
+    User savedUser = repository.save(user);
+
+    return buildAuthenticationResponseDTO(savedUser, true);
+  }
+
+  private void validateRegisterRequestDTO(User user) {
+    if (isNull(user)) {
+      throw new BadRequestException("Please check user register data.");
+    }
+    if (nonNull(findUserByEmail(user.getEmail()))) {
+      throw new BadRequestException("User with this email already exists.");
+    }
+  }
+
+  public AuthenticationResponseDTO authenticate(AuthenticationRequestDTO request) {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-    var user = repository.findByEmail(request.getEmail()).orElseThrow();
-    var jwtToken = jwtService.generateToken(user);
-    var refreshToken = jwtService.generateRefreshToken(user);
-    revokeAllUserTokens(user);
-    saveUserToken(user, jwtToken);
-    return AuthenticationResponse.builder()
-        .accessToken(jwtToken)
-        .selfID(user.getId())
-        .refreshToken(refreshToken)
-        .firstName(user.getFirstname())
-        .lastName(user.getLastname())
-        .email(user.getEmail())
-        .phone(user.getPhone())
-        .role(user.getRole())
-        .createdAt(user.getCreatedAt())
-        .build();
+
+    User user = findUserByEmail(request.getEmail());
+    return buildAuthenticationResponseDTO(user, false);
   }
 
   private void saveUserToken(User user, String jwtToken) {
-    var token =
-        Token.builder()
-            .user(user)
-            .token(jwtToken)
-            .tokenType(TokenType.BEARER)
-            .expired(false)
-            .revoked(false)
-            .build();
-    tokenRepository.save(token);
+    Token token = new Token();
+    token.setUser(user);
+    token.setToken(jwtToken);
+    token.setTokenType(TokenType.BEARER);
+    token.setExpired(false);
+    token.setRevoked(false);
+
+    tokenRepository.saveAndFlush(token);
   }
 
   private void revokeAllUserTokens(User user) {
@@ -100,29 +92,43 @@ public class AuthenticationService {
     tokenRepository.saveAll(validUserTokens);
   }
 
-  public void refreshToken(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    final String refreshToken;
-    final String userEmail;
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      return;
+  public AuthenticationResponseDTO refreshToken(RefreshTokenRequestDTO requestDTO) {
+    String refreshToken = requestDTO.getRefreshToken();
+    String email = jwtService.extractUsername(refreshToken);
+
+    User user = validateRefreshTokenAndFindUser(email, refreshToken);
+
+    return buildAuthenticationResponseDTO(user, false);
+  }
+
+  private User validateRefreshTokenAndFindUser(String email, String refreshToken) {
+    if (isNull(email)) {
+      throw new BadRequestException("Failed to find user with given refresh token.");
     }
-    refreshToken = authHeader.substring(7);
-    userEmail = jwtService.extractUsername(refreshToken);
-    if (userEmail != null) {
-      var user = this.repository.findByEmail(userEmail).orElseThrow();
-      if (jwtService.isTokenValid(refreshToken, user)) {
-        var accessToken = jwtService.generateToken(user);
-        revokeAllUserTokens(user);
-        saveUserToken(user, accessToken);
-        var authResponse =
-            AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-        new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
-      }
+
+    User user = findUserByEmailThrowsException(email);
+
+    if (!jwtService.isTokenValid(refreshToken, user)) {
+      throw new BadRequestException("Invalid refresh token.");
     }
+    return user;
+  }
+
+  private AuthenticationResponseDTO buildAuthenticationResponseDTO(
+      User user, boolean isRegisterRequest) {
+    String accessToken = jwtService.generateToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    if (!isRegisterRequest) {
+      revokeAllUserTokens(user);
+    }
+
+    saveUserToken(user, accessToken);
+
+    AuthenticationResponseDTO responseDTO =
+        ModelMapperUtils.map(user, AuthenticationResponseDTO.class);
+    responseDTO.setAccessToken(accessToken);
+    responseDTO.setRefreshToken(refreshToken);
+    return responseDTO;
   }
 }

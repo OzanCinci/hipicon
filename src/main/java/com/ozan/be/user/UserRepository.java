@@ -1,21 +1,21 @@
 package com.ozan.be.user;
 
-import java.util.List;
+import com.querydsl.core.types.Predicate;
 import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Integer> {
+public interface UserRepository extends JpaRepository<User, UUID>, QuerydslPredicateExecutor<User> {
 
   Optional<User> findByEmail(String email);
 
-  Optional<User> findUserById(Integer id);
+  Optional<User> findById(UUID id);
 
-  @Query(
-      "SELECT u FROM User u WHERE LOWER(u.email) LIKE %:searchTerm% OR LOWER(u.firstname) LIKE %:searchTerm% OR LOWER(u.lastname) LIKE %:searchTerm%")
-  List<User> findUsersByEmailNameOrSurnameContainingIgnoreCase(String searchTerm);
-
-  List<User> findUsersByRoleIsNot(Role role);
+  @Override
+  Page<User> findAll(Predicate filter, Pageable pageable);
 }

@@ -10,46 +10,40 @@ import org.springframework.data.domain.Sort;
 @Slf4j
 public class PageableUtils {
 
-  public static Pageable prepareDefaultSorting(Pageable pageable, Map<String, String> sortMap) {
-    // If any sorting is applied then keep it as is
-    if (pageable.getSort().isSorted()) {
-      return pageable;
-    }
-
-    // if not sorting applied set default sorts
-    return returnDefaultSorting(pageable, sortMap);
-  }
-
-  public static Pageable prepareDefaultAuditSorting(Pageable pageable) {
+  /** Sorting for entities that do not inherit from the Auditable class. */
+  public static Pageable prepareDefaultSorting(Pageable pageable) {
     Map<String, String> defaultSorting = new TreeMap<>();
-    defaultSorting.put("lastUpdate", "asc");
-    defaultSorting.put("createdAt", "asc");
-    return prepareDefaultSorting(pageable, defaultSorting);
+    defaultSorting.put("createdAt", "desc");
+    return applySorting(pageable, defaultSorting);
   }
 
-  public static Pageable prepareUserAuditSorting(Pageable pageable) {
+  /** Sorting for entities that inherit from the Auditable class. */
+  public static Pageable prepareAuditSorting(Pageable pageable) {
     Map<String, String> defaultSorting = new TreeMap<>();
-    defaultSorting.put("createdAt", "asc");
-    return prepareDefaultSorting(pageable, defaultSorting);
+    defaultSorting.put("updatedAt", "desc");
+    defaultSorting.put("createdAt", "desc");
+    return applySorting(pageable, defaultSorting);
   }
 
-  private static PageRequest returnDefaultSorting(Pageable pageable, Map<String, String> sortMap) {
+  /**
+   * Applies the default sorting to the given pageable object based on the provided sort map.
+   *
+   * @param pageable: a pageable object
+   * @param sortMap: a map containing sorting fields and orders
+   * @return a sorted pageable object
+   */
+  private static PageRequest applySorting(Pageable pageable, Map<String, String> sortMap) {
+    Sort[] finalSort = {pageable.getSort()};
 
-    Sort finalSort = pageable.getSort();
+    sortMap.forEach(
+        (sortBy, sortOrder) -> {
+          Sort sort =
+              "desc".equalsIgnoreCase(sortOrder)
+                  ? Sort.by(Sort.Order.desc(sortBy))
+                  : Sort.by(Sort.Order.asc(sortBy));
+          finalSort[0] = finalSort[0].and(sort);
+        });
 
-    for (String sortBy : sortMap.keySet()) {
-
-      String sortOrder = sortMap.get(sortBy);
-      Sort sort;
-
-      if ("desc".equalsIgnoreCase(sortOrder)) {
-        sort = Sort.by(Sort.Order.desc(sortBy));
-      } else {
-        sort = Sort.by(Sort.Order.asc(sortBy));
-      }
-      finalSort = sort.and(finalSort);
-    }
-
-    return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort);
+    return PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort[0]);
   }
 }

@@ -1,4 +1,4 @@
-package com.ozan.be.config;
+package com.ozan.be.auth;
 
 import com.ozan.be.token.TokenRepository;
 import jakarta.servlet.FilterChain;

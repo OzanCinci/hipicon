@@ -1,5 +1,6 @@
-package com.ozan.be.user;
+package com.ozan.be.user.domain;
 
+import com.ozan.be.user.Permission;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;

@@ -1,6 +1,6 @@
 package com.ozan.be.externalProducts;
 
-import com.ozan.be.customException.types.BadRequestException;
+import com.ozan.be.common.BaseController;
 import com.ozan.be.externalProducts.dtos.KasondaPriceRequestDTO;
 import com.ozan.be.externalProducts.dtos.KasondaPriceResponseDTO;
 import com.ozan.be.kasondaApi.dtos.ColorOption;
@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/external-products")
 @RequiredArgsConstructor
-public class ExternalProductsController {
+public class ExternalProductsController extends BaseController {
 
   private final ExternalProductsService externalProductsService;
 
@@ -40,13 +40,5 @@ public class ExternalProductsController {
       @PathVariable("category") String category, @PathVariable("id") String id) {
     ColorOption response = externalProductsService.getColorOptionByCategoryAndId(category, id);
     return ResponseEntity.ok(response);
-  }
-
-  @GetMapping("/test/{bool}")
-  private ResponseEntity<String> test(@PathVariable("bool") String bool) {
-    if (bool.equals("bad"))
-      throw new BadRequestException("it is a bad request exception");
-
-    return ResponseEntity.ok("No exception");
   }
 }

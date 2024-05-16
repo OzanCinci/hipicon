@@ -1,4 +1,4 @@
-package com.ozan.be.config;
+package com.ozan.be.auth;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,27 +1,21 @@
 package com.ozan.be.order;
 
-import static jakarta.persistence.GenerationType.SEQUENCE;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.ozan.be.common.Auditable;
 import com.ozan.be.product.Product;
 import jakarta.persistence.*;
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.*;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "order_item")
-public class OrderItem {
+public class OrderItem extends Auditable<UUID> implements Serializable {
   @Id
-  @SequenceGenerator(
-      name = "order_item_sequence",
-      sequenceName = "order_item_sequence",
-      allocationSize = 1)
-  @GeneratedValue(strategy = SEQUENCE, generator = "order_item_sequence")
-  @Column(name = "id", updatable = false)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(
@@ -31,8 +25,9 @@ public class OrderItem {
       foreignKey = @ForeignKey(name = "order_item_product_fk"))
   private Product product;
 
-  @JsonBackReference
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   @JoinColumn(
       name = "order_id",
       nullable = false,

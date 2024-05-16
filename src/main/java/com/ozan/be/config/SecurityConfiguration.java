@@ -2,7 +2,8 @@ package com.ozan.be.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-import com.ozan.be.user.Role;
+import com.ozan.be.auth.JwtAuthenticationFilter;
+import com.ozan.be.user.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +37,7 @@ public class SecurityConfiguration {
     secureManagements(http);
     secureUserOperations(http);
     secureReviewOperations(http);
+    secureOrderOperations(http);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
@@ -56,20 +58,7 @@ public class SecurityConfiguration {
   }
 
   private void publicRequests(HttpSecurity http) throws Exception {
-    String[] WHITE_LIST_URL = {
-      "/api/auth/**",
-      "/api/auth/**",
-      "/v2/api-docs",
-      "/v3/api-docs",
-      "/v3/api-docs/**",
-      "/swagger-resources",
-      "/swagger-resources/**",
-      "/configuration/ui",
-      "/configuration/security",
-      "/swagger-ui/**",
-      "/webjars/**",
-      "/swagger-ui.html"
-    };
+    String[] WHITE_LIST_URL = {"/api/auth/**", "/api/product/*"};
 
     http.authorizeHttpRequests((requests) -> requests.requestMatchers(WHITE_LIST_URL).permitAll());
   }
@@ -100,15 +89,21 @@ public class SecurityConfiguration {
     http.authorizeHttpRequests(
         (requests) ->
             requests
-                .requestMatchers(HttpMethod.GET, "/api/users/getUserDetails/*")
+                .requestMatchers(HttpMethod.GET, "/api/users/*")
+                .hasAnyRole(allRoles)
+                .requestMatchers(HttpMethod.PUT, "/api/users/change-password")
                 .hasAnyRole(allRoles));
   }
 
   private void secureReviewOperations(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
         (requests) ->
-            requests
-                .requestMatchers(HttpMethod.POST, "/api/review/createReview")
-                .hasAnyRole(allRoles));
+            requests.requestMatchers(HttpMethod.POST, "/api/review").hasAnyRole(allRoles));
+  }
+
+  private void secureOrderOperations(HttpSecurity http) throws Exception {
+    http.authorizeHttpRequests(
+        (requests) ->
+            requests.requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole(allRoles));
   }
 }

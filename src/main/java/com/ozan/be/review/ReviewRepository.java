@@ -1,18 +1,27 @@
 package com.ozan.be.review;
 
-import java.util.List;
+import com.querydsl.core.types.Predicate;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ReviewRepository extends JpaRepository<Review, Integer> {
+public interface ReviewRepository
+    extends JpaRepository<Review, UUID>, QuerydslPredicateExecutor<Review> {
+  @Override
+  @EntityGraph(attributePaths = {"product", "user"})
+  Page<Review> findAll(Predicate filter, Pageable pageable);
 
-  public List<Review> findAllByApproved(Boolean approved);
+  @EntityGraph(attributePaths = {"product"})
+  Optional<Review> findById(UUID id);
 
-  public Optional<Review> findReviewById(Integer reviewID);
-
-  public Page<Review> findByApproved(Boolean approved, Pageable pageable);
+  @Query(value = "SELECT product_id FROM review WHERE user_id = :userId", nativeQuery = true)
+  Set<UUID> findProductIdsByUserId(UUID userId);
 }

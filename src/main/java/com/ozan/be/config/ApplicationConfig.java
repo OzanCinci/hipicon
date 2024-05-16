@@ -1,7 +1,9 @@
 package com.ozan.be.config;
 
 import com.ozan.be.auditing.ApplicationAuditAware;
+import com.ozan.be.customException.types.DataNotFoundException;
 import com.ozan.be.user.UserRepository;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +13,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,7 +27,8 @@ public class ApplicationConfig {
     return username ->
         repository
             .findByEmail(username)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            .orElseThrow(
+                () -> new DataNotFoundException("User not found with username: " + username));
   }
 
   @Bean
@@ -38,7 +40,7 @@ public class ApplicationConfig {
   }
 
   @Bean
-  public AuditorAware<Integer> auditorAware() {
+  public AuditorAware<UUID> auditorAware() {
     return new ApplicationAuditAware();
   }
 

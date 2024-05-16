@@ -1,6 +1,10 @@
 package com.ozan.be.user;
 
+import com.ozan.be.common.dtos.BasicReponseDTO;
+import com.ozan.be.user.dtos.ChangePasswordRequestDTO;
+import com.ozan.be.user.dtos.UserResponseDTO;
 import java.security.Principal;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,15 +16,16 @@ public class UserController {
 
   private final UserService service;
 
-  @PatchMapping
-  public ResponseEntity<?> changePassword(
-      @RequestBody ChangePasswordRequest request, Principal connectedUser) {
+  @PutMapping("/change-password")
+  public ResponseEntity<BasicReponseDTO> changePassword(
+      @RequestBody ChangePasswordRequestDTO request, Principal connectedUser) {
     service.changePassword(request, connectedUser);
-    return ResponseEntity.ok().build();
+    return ResponseEntity.ok(new BasicReponseDTO(true));
   }
 
-  @GetMapping("/getUserDetails/{userID}")
-  public User getUserDetails(@PathVariable Integer userID) {
-    return service.getUserDetails(userID);
+  @GetMapping("/{id}")
+  public void getUserDetails(@PathVariable("id") UUID id) {
+    UserResponseDTO response = service.getUserDetails(id);
+    ResponseEntity.ok(response);
   }
 }

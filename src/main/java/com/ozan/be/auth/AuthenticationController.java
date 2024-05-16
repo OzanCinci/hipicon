@@ -1,10 +1,13 @@
 package com.ozan.be.auth;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.ozan.be.auth.dtos.AuthenticationRequestDTO;
+import com.ozan.be.auth.dtos.AuthenticationResponseDTO;
+import com.ozan.be.auth.dtos.RefreshTokenRequestDTO;
+import com.ozan.be.auth.dtos.RegisterRequestDTO;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,43 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Validated
 public class AuthenticationController {
 
   private final AuthenticationService service;
 
   @PostMapping("/register")
-  public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request)
-      throws Exception {
-    try {
-      return ResponseEntity.ok(service.register(request));
-    } catch (Exception e) {
-      if (e.getMessage().contains(" already exists")) {
-        throw new RuntimeException(
-            "User with email address: " + request.getEmail() + " already exists");
-      }
-      throw new RuntimeException(
-          "Something went wrong, in case of recurrence please contact us");
-    }
+  public ResponseEntity<AuthenticationResponseDTO> register(
+      @Valid @RequestBody RegisterRequestDTO request) {
+    AuthenticationResponseDTO responseDTO = service.register(request);
+    return ResponseEntity.ok(responseDTO);
   }
 
   @PostMapping("/authenticate")
-  public ResponseEntity<AuthenticationResponse> authenticate(
-      @RequestBody AuthenticationRequest request) {
-    try {
-      return ResponseEntity.ok(service.authenticate(request));
-    } catch (Exception e) {
-      if (e.getMessage().contains("Bad credentials")) {
-        throw new RuntimeException(
-            "User with email address: " + request.getEmail() + " doesn't exists");
-      }
-      throw new RuntimeException(
-          "Something went wrong, in case of recurrence please contact us");
-    }
+  public ResponseEntity<AuthenticationResponseDTO> authenticate(
+      @Valid @RequestBody AuthenticationRequestDTO request) {
+    AuthenticationResponseDTO responseDTO = service.authenticate(request);
+    return ResponseEntity.ok(responseDTO);
   }
 
   @PostMapping("/refresh-token")
-  public void refreshToken(HttpServletRequest request, HttpServletResponse response)
-      throws IOException {
-    service.refreshToken(request, response);
+  public ResponseEntity<AuthenticationResponseDTO> refreshToken(
+      @Valid @RequestBody RefreshTokenRequestDTO requestDTO) {
+    AuthenticationResponseDTO responseDTO = service.refreshToken(requestDTO);
+    return ResponseEntity.ok(responseDTO);
   }
 }

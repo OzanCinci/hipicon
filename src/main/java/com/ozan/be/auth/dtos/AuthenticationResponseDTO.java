@@ -1,21 +1,19 @@
-package com.ozan.be.auth;
+package com.ozan.be.auth.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ozan.be.user.Role;
-import jakarta.persistence.Column;
+import com.ozan.be.user.domain.Role;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthenticationResponse {
+public class AuthenticationResponseDTO {
 
   @JsonProperty("access_token")
   private String accessToken;
@@ -23,14 +21,13 @@ public class AuthenticationResponse {
   @JsonProperty("refresh_token")
   private String refreshToken;
 
-  private Integer selfID;
+  private UUID id;
   private String firstName;
   private String lastName;
   private String phone;
   private String email;
 
-  @Column(columnDefinition = "timestamp")
-  private LocalDateTime createdAt;
+  private Instant createdAt;
 
   @Enumerated(EnumType.STRING)
   private Role role;

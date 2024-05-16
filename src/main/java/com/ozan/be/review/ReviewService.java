@@ -1,81 +1,112 @@
 package com.ozan.be.review;
 
+import com.ozan.be.customException.types.BadRequestException;
+import com.ozan.be.customException.types.DataNotFoundException;
 import com.ozan.be.product.Product;
 import com.ozan.be.product.ProductService;
+import com.ozan.be.review.dtos.ReviewRequestDTO;
+import com.ozan.be.review.dtos.ReviewResponseDTO;
 import com.ozan.be.user.User;
 import com.ozan.be.user.UserService;
+import com.ozan.be.utils.ModelMapperUtils;
 import com.ozan.be.utils.PageableUtils;
-import java.time.LocalDateTime;
+import com.querydsl.core.types.Predicate;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @AllArgsConstructor
 @Service
 public class ReviewService {
   private final ReviewRepository reviewRepository;
-  private final UserService userService;
   private final ProductService productService;
+  private final UserService userService;
 
-  public Page<Review> getAllApprovedReviews(Pageable pageable) {
-    Pageable finalPageable = PageableUtils.prepareUserAuditSorting(pageable);
-    Page<Review> reviewPage = reviewRepository.findByApproved(true, finalPageable);
-    List<Review> reviewList = reviewPage.getContent().stream().toList();
-    return new PageImpl<>(reviewList, reviewPage.getPageable(), reviewPage.getTotalElements());
+  private Review getReviewByIdThrowsException(UUID id) {
+    return reviewRepository
+        .findById(id)
+        .orElseThrow(() -> new DataNotFoundException("No review found with id: " + id));
   }
 
-  public Page<Review> getAllPendingReviews(Pageable pageable) {
-    Pageable finalPageable = PageableUtils.prepareUserAuditSorting(pageable);
-    Page<Review> reviewPage = reviewRepository.findByApproved(false, finalPageable);
-    List<Review> reviewList = reviewPage.getContent().stream().toList();
-    return new PageImpl<>(reviewList, reviewPage.getPageable(), reviewPage.getTotalElements());
+  public Page<ReviewResponseDTO> getAllReviews(Pageable pageable, Predicate filter) {
+    Pageable finalPageable = PageableUtils.prepareAuditSorting(pageable);
+    Page<Review> reviewPage = reviewRepository.findAll(filter, finalPageable);
+
+    List<ReviewResponseDTO> reviewResponseDTOList =
+        reviewPage.getContent().stream()
+            .map(
+                review -> {
+                  User user = review.getUser();
+
+                  ReviewResponseDTO responseDTO =
+                      ModelMapperUtils.map(review, ReviewResponseDTO.class);
+                  responseDTO.setEmail(user.getEmail());
+                  responseDTO.setUserName(
+                      user.getFirstName() + " " + user.getLastName().substring(0, 1) + ".");
+                  return responseDTO;
+                })
+            .toList();
+
+    return new PageImpl<>(
+        reviewResponseDTOList, reviewPage.getPageable(), reviewPage.getTotalElements());
   }
 
-  public Integer createReview(ReviewRequest request) {
-    User user = userService.getUser(request.getEmail());
-    Product product = productService.getProduct(request.getProductId());
-    String userName = user.getFirstname() + " " + user.getLastname();
+  @Transactional
+  public void approveReview(UUID id) {
+    Review review = getReviewByIdThrowsException(id);
 
-    var review =
-        Review.builder()
-            .approved(false)
-            .email(user.getEmail())
-            .product(product)
-            .rating(request.getRating())
-            .user(user)
-            .approvedAt(null)
-            .createdAt(LocalDateTime.now())
-            .comment(request.getComment())
-            .userName(userName)
-            .build();
+    review.setApproved(true);
+    reviewRepository.save(review);
 
-    Review saveReview = reviewRepository.save(review);
-    return saveReview.getId();
+    Product product = review.getProduct();
+
+    Double newRating =
+        (product.getRating() * product.getNumberOfRating() + review.getRating())
+            / (product.getNumberOfRating() + 1);
+    product.setRating(newRating);
+    product.setNumberOfRating(product.getNumberOfRating() + 1);
+    productService.saveAndFlush(product);
   }
 
-  public Review approveReview(Integer reviewID, Integer productID) {
-    // find review and set it as approved
-    var review = reviewRepository.findReviewById(reviewID);
+  @Transactional
+  public void deleteReview(UUID id) {
+    Review review = getReviewByIdThrowsException(id);
+    if (review.getApproved()) {
+      throw new BadRequestException("Cannot delete approved review.");
+    }
 
-    if (!review.isPresent()) return null;
-
-    Review changedReview = review.get();
-    changedReview.setApproved(true);
-    changedReview.setApprovedAt(LocalDateTime.now());
-    Review savedReview = reviewRepository.save(changedReview);
-
-    // update rating of relevant product
-    productService.updateProductRating(productID, savedReview);
-
-    return savedReview;
+    reviewRepository.delete(review);
   }
 
-  public ResponseEntity<String> deletePendingReview(Integer reviewID) {
-    reviewRepository.deleteById(reviewID);
-    return ResponseEntity.ok("Deletion success.");
+  @Transactional
+  public UUID createReview(ReviewRequestDTO requestDTO, UUID userId) {
+    User user = userService.getUserById(userId);
+
+    validateNoMultipleReviewForSameProduct(userId, requestDTO.getProductId());
+
+    Product product = productService.getProductByIdThrowsException(requestDTO.getProductId());
+
+    Review review = new Review();
+    review.setProduct(product);
+    review.setUser(user);
+    review.setRating(requestDTO.getRating());
+    review.setComment(requestDTO.getComment());
+    review.setApproved(false);
+
+    Review savedReview = reviewRepository.saveAndFlush(review);
+    return savedReview.getId();
+  }
+
+  private void validateNoMultipleReviewForSameProduct(UUID userId, UUID productId) {
+    Set<UUID> reviewedProducts = reviewRepository.findProductIdsByUserId(userId);
+    if (reviewedProducts.contains(productId)) {
+      throw new BadRequestException("You have already made a review on this product.");
+    }
   }
 }

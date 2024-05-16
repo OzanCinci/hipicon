@@ -1,29 +1,24 @@
 package com.ozan.be.review;
 
-import static jakarta.persistence.GenerationType.SEQUENCE;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.ozan.be.common.Auditable;
 import com.ozan.be.product.Product;
 import com.ozan.be.user.User;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.io.Serializable;
+import java.util.UUID;
 import lombok.*;
 
-@Data
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "review")
-public class Review {
+public class Review extends Auditable<UUID> implements Serializable {
   @Id
-  @SequenceGenerator(name = "review_sequence", sequenceName = "review_sequence", allocationSize = 1)
-  @GeneratedValue(strategy = SEQUENCE, generator = "review_sequence")
-  @Column(name = "id", updatable = false)
-  private Integer id;
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-  // @JsonBackReference
-  @ManyToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       name = "product_id",
       nullable = false,
@@ -31,8 +26,9 @@ public class Review {
       foreignKey = @ForeignKey(name = "review_product_fk"))
   private Product product;
 
-  @JsonBackReference
-  @ManyToOne
+  @ManyToOne(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   @JoinColumn(
       name = "user_id",
       nullable = false,
@@ -40,19 +36,9 @@ public class Review {
       foreignKey = @ForeignKey(name = "review_user_fk"))
   private User user;
 
-  private String userName; // user.getFirstName() + " " + user.getLastName()
-
-  private String email;
-
   private Integer rating;
 
   private String comment;
-
-  @Column(columnDefinition = "timestamp")
-  private LocalDateTime createdAt;
-
-  @Column(columnDefinition = "timestamp")
-  private LocalDateTime approvedAt;
 
   private Boolean approved;
 }

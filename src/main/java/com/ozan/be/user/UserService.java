@@ -1,9 +1,14 @@
 package com.ozan.be.user;
 
-import com.ozan.be.token.TokenRepository;
+import com.ozan.be.customException.types.DataNotFoundException;
+import com.ozan.be.user.dtos.ChangePasswordRequestDTO;
+import com.ozan.be.user.dtos.UserResponseDTO;
+import com.ozan.be.utils.ModelMapperUtils;
 import com.ozan.be.utils.PageableUtils;
+import com.querydsl.core.types.Predicate;
 import java.security.Principal;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,9 +23,29 @@ public class UserService {
 
   private final PasswordEncoder passwordEncoder;
   private final UserRepository repository;
-  private final TokenRepository tokenRepository;
 
-  public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
+  public Page<UserResponseDTO> getAllUsers(Pageable pageable, Predicate filter) {
+    Pageable finalPageable = PageableUtils.prepareDefaultSorting(pageable);
+    Page<User> userPage = repository.findAll(filter, finalPageable);
+
+    List<UserResponseDTO> userResponseDTOList =
+        ModelMapperUtils.mapAll(userPage.getContent(), UserResponseDTO.class);
+
+    return new PageImpl<>(userResponseDTOList, userPage.getPageable(), userPage.getTotalElements());
+  }
+
+  public User getUserById(UUID id) {
+    return repository
+        .findById(id)
+        .orElseThrow(() -> new DataNotFoundException("No user found with id: " + id));
+  }
+
+  public UserResponseDTO getUserDetails(UUID id) {
+    User user = getUserById(id);
+    return ModelMapperUtils.map(user, UserResponseDTO.class);
+  }
+
+  public void changePassword(ChangePasswordRequestDTO request, Principal connectedUser) {
 
     var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
 
@@ -38,44 +63,5 @@ public class UserService {
 
     // save the new password
     repository.save(user);
-  }
-
-  public Page<User> getAllUsers(Pageable pageable) {
-    Pageable finalPageable = PageableUtils.prepareUserAuditSorting(pageable);
-    Page<User> usersPage = repository.findAll(finalPageable);
-    List<User> userList = usersPage.getContent().stream().toList();
-    return new PageImpl<>(userList, usersPage.getPageable(), usersPage.getTotalElements());
-  }
-
-  public User getUser(String email) {
-    // only allows acces from admin panel so return type is not optional
-    return repository.findByEmail(email).get();
-  }
-
-  public User getUserDetails(Integer userID) {
-    return repository.findUserById(userID).orElse(null);
-    /*
-
-    String authorizationHeader = request.getHeader("Authorization");
-
-    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-        String tokenString = authorizationHeader.substring(7); // "Bearer ".length() = 7
-        Token token = tokenRepository.findByToken(tokenString).orElse(null);
-
-        assert token != null;
-        if (token.getUser().getId().equals(userID)){
-            User user = repository.findUserById(userID).orElse(null);
-            new ObjectMapper().writeValue(response.getOutputStream(), user);
-        }
-    }
-    */
-  }
-
-  public List<User> getUserSearchResult(String searchWord) {
-    return repository.findUsersByEmailNameOrSurnameContainingIgnoreCase(searchWord);
-  }
-
-  public List<User> getManagerUsers() {
-    return repository.findUsersByRoleIsNot(Role.USER);
   }
 }

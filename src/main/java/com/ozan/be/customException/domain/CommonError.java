@@ -9,12 +9,12 @@ import org.springframework.validation.FieldError;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommonError {
-    private int status;
-    private String source;
-    private String code;
-    private String detail;
+  private int status;
+  private String source;
+  private String code;
+  private String detail;
 
-    public static CommonError fromFieldError(FieldError err) {
-        return new CommonError(422, err.getField(), err.getCode(), err.getDefaultMessage());
-    }
+  public static CommonError fromFieldError(FieldError err) {
+    return new CommonError(422, err.getField(), err.getCode(), err.getDefaultMessage());
+  }
 }
