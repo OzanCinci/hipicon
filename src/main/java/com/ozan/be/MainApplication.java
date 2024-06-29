@@ -4,10 +4,6 @@ import static com.ozan.be.user.domain.Role.*;
 
 import com.ozan.be.auth.AuthenticationService;
 import com.ozan.be.auth.dtos.RegisterRequestDTO;
-import com.ozan.be.order.*;
-import com.ozan.be.product.Product;
-import com.ozan.be.product.ProductRepository;
-import com.ozan.be.review.ReviewService;
 import com.ozan.be.user.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,12 +21,7 @@ public class MainApplication {
 
   @Bean
   public CommandLineRunner commandLineRunner(
-      AuthenticationService service,
-      UserRepository userRepository,
-      OrderService orderService,
-      ProductRepository productRepository,
-      OrderItemRepository orderItemRepository,
-      ReviewService reviewService) {
+      AuthenticationService service, UserRepository userRepository) {
     return args -> {
       RegisterRequestDTO requestDTO = new RegisterRequestDTO();
       requestDTO.setEmail("admin@mail.com");
@@ -56,13 +47,6 @@ public class MainApplication {
       requestDTO.setPassword("password");
       requestDTO.setRole(USER);
       System.out.println("Regular User token: " + service.register(requestDTO).getAccessToken());
-
-      Product product = new Product();
-      product.setName("car");
-      product.setImageUrl("something.jpg");
-      product.setCategory("item");
-      product.setDescription("description field");
-      productRepository.saveAndFlush(product);
     };
   }
 }

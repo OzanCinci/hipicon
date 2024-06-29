@@ -4,7 +4,6 @@ import com.ozan.be.customException.domain.CommonError;
 import com.ozan.be.customException.domain.CommonErrorResponse;
 import com.ozan.be.customException.types.BadRequestException;
 import com.ozan.be.customException.types.DataNotFoundException;
-import com.ozan.be.customException.types.KasondaApiException;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 @Slf4j
 @ControllerAdvice
@@ -28,22 +26,6 @@ public class GlobalExceptionHandler {
     log.error("Exception occurred BadRequestException : {}", exception.getMessage());
     return returnCommonErrorResponse(
         HttpStatus.BAD_REQUEST, HttpStatus.BAD_REQUEST.toString(), exception.getMessage());
-  }
-
-  @ExceptionHandler(WebClientRequestException.class)
-  @ResponseStatus(HttpStatus.BAD_GATEWAY)
-  public CommonErrorResponse handleWebClientRequestException(WebClientRequestException exception) {
-    log.error("Exception occurred WebClientRequestException : {}", exception.getMessage());
-    return returnCommonErrorResponse(
-        HttpStatus.BAD_GATEWAY, HttpStatus.BAD_GATEWAY.toString(), exception.getMessage());
-  }
-
-  @ExceptionHandler(KasondaApiException.class)
-  @ResponseStatus(HttpStatus.BAD_GATEWAY)
-  public CommonErrorResponse handleGPTServiceException(KasondaApiException exception) {
-    log.error("Exception occurred KasondaApiException : {}", exception.getMessage());
-    return returnCommonErrorResponse(
-        HttpStatus.BAD_GATEWAY, HttpStatus.BAD_GATEWAY.toString(), exception.getMessage());
   }
 
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
