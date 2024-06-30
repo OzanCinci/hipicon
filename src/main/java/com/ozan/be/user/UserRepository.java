@@ -1,5 +1,6 @@
 package com.ozan.be.user;
 
+import com.ozan.be.user.domain.User;
 import com.querydsl.core.types.Predicate;
 import java.util.Optional;
 import java.util.UUID;

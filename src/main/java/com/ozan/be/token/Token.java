@@ -1,7 +1,7 @@
 package com.ozan.be.token;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.ozan.be.user.User;
+import com.ozan.be.user.domain.User;
 import jakarta.persistence.*;
 import java.util.UUID;
 import lombok.AllArgsConstructor;

@@ -21,7 +21,6 @@ public class RegisterRequestDTO {
 
   @NotNull private String phone;
 
-  @NotNull
   @Enumerated(EnumType.STRING)
-  private Role role;
+  private Role role = Role.USER;
 }

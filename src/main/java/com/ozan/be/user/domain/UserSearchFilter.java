@@ -3,7 +3,6 @@ package com.ozan.be.user.domain;
 import static java.util.Objects.nonNull;
 
 import com.ozan.be.common.AbstractSearchFilter;
-import com.ozan.be.user.QUser;
 import com.querydsl.core.types.Predicate;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -23,16 +22,19 @@ public class UserSearchFilter extends AbstractSearchFilter {
   @Override
   public void buildPredicateList(List<Predicate> predicateList) {
     if (nonNull(roles) && !roles.isEmpty()) {
-      predicateList.add(QUser.user.role.in(roles));
+      predicateList.add(com.ozan.be.user.domain.QUser.user.role.in(roles));
     }
 
     if (nonNull(email)) {
-      predicateList.add(QUser.user.email.containsIgnoreCase(email));
+      predicateList.add(com.ozan.be.user.domain.QUser.user.email.containsIgnoreCase(email));
     }
 
     if (nonNull(q)) {
       predicateList.add(
-          QUser.user.firstName.containsIgnoreCase(q).or(QUser.user.lastName.containsIgnoreCase(q)));
+          com.ozan.be.user.domain.QUser.user
+              .firstName
+              .containsIgnoreCase(q)
+              .or(com.ozan.be.user.domain.QUser.user.lastName.containsIgnoreCase(q)));
     }
   }
 }

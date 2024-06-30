@@ -1,6 +1,6 @@
 package com.ozan.be.auditing;
 
-import com.ozan.be.user.User;
+import com.ozan.be.user.domain.User;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.AuditorAware;

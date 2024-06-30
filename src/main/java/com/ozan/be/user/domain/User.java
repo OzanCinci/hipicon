@@ -1,9 +1,10 @@
-package com.ozan.be.user;
+package com.ozan.be.user.domain;
 
+import com.ozan.be.product.domain.Product;
 import com.ozan.be.token.Token;
-import com.ozan.be.user.domain.Role;
 import jakarta.persistence.*;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,9 @@ public class User implements UserDetails {
 
   @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
   private List<Token> tokens;
+
+  @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "user")
+  private List<Product> products = new ArrayList<>();
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

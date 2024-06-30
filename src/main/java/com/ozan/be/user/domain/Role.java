@@ -1,6 +1,5 @@
 package com.ozan.be.user.domain;
 
-import com.ozan.be.user.Permission;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -17,17 +16,7 @@ public enum Role {
           Permission.ADMIN_READ,
           Permission.ADMIN_UPDATE,
           Permission.ADMIN_DELETE,
-          Permission.ADMIN_CREATE,
-          Permission.MANAGER_READ,
-          Permission.MANAGER_UPDATE,
-          Permission.MANAGER_DELETE,
-          Permission.MANAGER_CREATE)),
-  MANAGER(
-      Set.of(
-          Permission.MANAGER_READ,
-          Permission.MANAGER_UPDATE,
-          Permission.MANAGER_DELETE,
-          Permission.MANAGER_CREATE));
+          Permission.ADMIN_CREATE));
 
   @Getter private final Set<Permission> permissions;
 

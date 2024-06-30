@@ -1,11 +1,13 @@
 package com.ozan.be.user;
 
-import com.ozan.be.common.dtos.BasicReponseDTO;
-import com.ozan.be.user.dtos.ChangePasswordRequestDTO;
+import com.ozan.be.user.domain.UserSearchFilter;
 import com.ozan.be.user.dtos.UserResponseDTO;
-import java.security.Principal;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.api.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,14 +15,18 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
+  /*
+   ONLY ADMIN USER CAN ACCESS ENDPOINTS BELOW
+  */
 
   private final UserService service;
 
-  @PutMapping("/change-password")
-  public ResponseEntity<BasicReponseDTO> changePassword(
-      @RequestBody ChangePasswordRequestDTO request, Principal connectedUser) {
-    service.changePassword(request, connectedUser);
-    return ResponseEntity.ok(new BasicReponseDTO(true));
+  @GetMapping()
+  public ResponseEntity<Page<UserResponseDTO>> getAllUsers(
+      @PageableDefault(size = 5) Pageable pageable,
+      @ParameterObject UserSearchFilter searchFilter) {
+    Page<UserResponseDTO> responseDTOS = service.getAllUsers(pageable, searchFilter.getPredicate());
+    return ResponseEntity.ok(responseDTOS);
   }
 
   @GetMapping("/{id}")

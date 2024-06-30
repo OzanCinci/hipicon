@@ -27,17 +27,14 @@ public class SecurityConfiguration {
   private final JwtAuthenticationFilter jwtAuthFilter;
   private final AuthenticationProvider authenticationProvider;
   private final LogoutHandler logoutHandler;
-  private final String[] managementRoles = {Role.ADMIN.name(), Role.MANAGER.name()};
-  private final String[] allRoles = {Role.ADMIN.name(), Role.MANAGER.name(), Role.USER.name()};
+  private final String[] managementRoles = {Role.ADMIN.name()};
+  private final String[] allRoles = {Role.ADMIN.name(), Role.USER.name()};
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     publicRequests(http);
-    secureExternalProducts(http);
-    secureManagements(http);
-    secureUserOperations(http);
-    secureReviewOperations(http);
-    secureOrderOperations(http);
+    secureAdminRequests(http);
+    secureProductRequests(http);
 
     http.csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
@@ -58,52 +55,34 @@ public class SecurityConfiguration {
   }
 
   private void publicRequests(HttpSecurity http) throws Exception {
-    String[] WHITE_LIST_URL = {"/api/auth/**", "/api/product/*"};
+    String[] WHITE_LIST_URL = {"/api/auth/**"};
 
     http.authorizeHttpRequests((requests) -> requests.requestMatchers(WHITE_LIST_URL).permitAll());
   }
 
-  private void secureExternalProducts(HttpSecurity http) throws Exception {
+  private void secureAdminRequests(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
         (requests) ->
             requests
-                .requestMatchers(HttpMethod.GET, "/api/external-products/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/external-products/**")
-                .permitAll());
-  }
-
-  private void secureManagements(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        (requests) ->
-            requests
-                .requestMatchers(HttpMethod.GET, "/api/management/**")
+                .requestMatchers(HttpMethod.GET, "/api/users")
                 .hasAnyRole(managementRoles)
-                .requestMatchers(HttpMethod.PUT, "/api/management/**")
-                .hasAnyRole(managementRoles)
-                .requestMatchers(HttpMethod.DELETE, "/api/management/**")
+                .requestMatchers(HttpMethod.GET, "/api/users/**")
                 .hasAnyRole(managementRoles));
   }
 
-  private void secureUserOperations(HttpSecurity http) throws Exception {
+  private void secureProductRequests(HttpSecurity http) throws Exception {
     http.authorizeHttpRequests(
         (requests) ->
             requests
-                .requestMatchers(HttpMethod.GET, "/api/users/*")
+                .requestMatchers(HttpMethod.POST, "/api/product")
                 .hasAnyRole(allRoles)
-                .requestMatchers(HttpMethod.PUT, "/api/users/change-password")
+                .requestMatchers(HttpMethod.GET, "/api/product")
+                .permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/product/*")
+                .permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/product/*/approve")
+                .hasAnyRole(managementRoles)
+                .requestMatchers(HttpMethod.PUT, "/api/product/*/status/*")
                 .hasAnyRole(allRoles));
-  }
-
-  private void secureReviewOperations(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        (requests) ->
-            requests.requestMatchers(HttpMethod.POST, "/api/review").hasAnyRole(allRoles));
-  }
-
-  private void secureOrderOperations(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        (requests) ->
-            requests.requestMatchers(HttpMethod.POST, "/api/orders").hasAnyRole(allRoles));
   }
 }

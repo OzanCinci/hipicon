@@ -15,7 +15,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable<U> {
+public abstract class BaseAuditableEntity<U> {
 
   @CreatedBy U createdBy;
 
